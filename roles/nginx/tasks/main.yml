@@ -1,0 +1,30 @@
+---
+- name: install package
+  apt:
+    name: "{{ item }}"
+    state: latest
+    with_items:
+    - nginx
+    - tree
+    - docker.io
+
+- name: Create a directory if it does not exist
+  file:
+    path: /var/www/tutorial
+    state: directory
+    mode: '0755'
+- name: copy index file
+  copy:
+    src: index.html
+    dest: /var/www/tutorial
+  notify: restart service
+- name: copy tutorial file
+  template:
+    src: tutorial.j2
+    dest: /etc/nginx/sites-enabled/tutorial
+  notify: restart service
+
+- name: start service
+  service:
+    name: "{{ packagename }}"
+    state: started
